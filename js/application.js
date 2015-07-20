@@ -1,4 +1,5 @@
 $(document).ready(function(){
+
   var MovieFinder = function(){
     this.timer = null;
     this.hideDot();
