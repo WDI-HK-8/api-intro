@@ -1,67 +1,73 @@
 $(document).ready(function(){
-  var timer;
+  var SearchEngine = function(){
+    this.timer = null;
+    this.hideDot();
+  };
 
-  var hideDot = function(){
-    $('#loading').hide();
-    $('#loading').html('');
-    clearInterval(timer);
-  }
+  SearchEngine.prototype.hideDot = function(){
+    clearInterval(this.timer);
+    $('#loading').text('');
+  };
 
-  var showDot = function(){
+  SearchEngine.prototype.showDot = function(){
+    clearInterval(this.timer);
     var times = 0;
 
-    $('#loading').show();
-    clearInterval(timer);
-
-    timer = setInterval(function(){
+    this.timer = setInterval(function(){
       $('#loading').append('.');
       times++;
 
       if (times >= 7) {
-        $('#loading').html('');
+        $('#loading').text('');
         times = 0;
       }
     }, 300);
-  }
+  };
 
-  hideDot();
-
-  var search = function(title) {
+  SearchEngine.prototype.loadingScreen = function(){
     $('.info').hide();
-    showDot();
+    this.showDot();
+  };
+
+  SearchEngine.prototype.search = function(title){
+    this.loadingScreen();
+
+    var successFunction = function(response){
+      console.log("Finish searching for", title);
+      console.log("This is the response: ", response);
+
+      $('#poster').attr("src", response["Poster"]);
+
+      var keys = ['Title', 'Year', 'Rated', 'Released', 'Runtime', 'Genre', 'Director', 'Writer', 'Actors', 'Language', 'Country', 'Awards'];
+      var html = '';
+
+      keys.forEach(function(key){
+        html += '<li>';
+        html +=   '<div class="col-xs-3">';
+        html +=     key;
+        html +=   '</div>';
+        html +=   '<div class="col-xs-9">';
+        html +=     response[key]
+        html +=   '</div>';
+        html += '</li>';
+      });
+
+      setTimeout(function(){
+        $('#details').html(html);
+        $('.info').show();
+        searchEngine.hideDot();
+      }, 2000);
+    };
 
     $.ajax({
       type: "GET",
       url: "http://www.omdbapi.com/?t=" + title,
       dataType: "JSON",
-      success: function(response) {
-        console.log("Finish searching for", title);
-        console.log("This is the response: ", response);
-        
-        $('#poster').attr("src", response["Poster"]);
-
-        var keys = ['Title', 'Year', 'Rated', 'Released', 'Runtime', 'Genre', 'Director', 'Writer', 'Actors', 'Language', 'Country', 'Awards'];
-        var html = '';
-
-        keys.forEach(function (key) {
-          html += '<li>';
-          html +=   '<div class="col-xs-3">';
-          html +=     key;
-          html +=   '</div>';
-          html +=   '<div class="col-xs-9">';
-          html +=     response[key]
-          html +=   '</div>';
-          html += '</li>';
-        });
-
-        setTimeout(function(){
-          $('#details').html(html);
-          $('.info').show();
-          hideDot();
-        }, 2000)
-      }
+      success: successFunction
     });
-  }
+  };
+
+  var searchEngine = new SearchEngine();
 
   $('#search-form').submit(function(){
     event.preventDefault();
@@ -70,11 +76,11 @@ $(document).ready(function(){
     $('.info').removeClass('hidden');
 
     var title = $('#title').val();
-    search(title);
+    searchEngine.search(title);
   })
 
-  $('#enter').hover(function(){
-    $('#enter').hide();
-    $('#enterpic').removeClass('hidden');
-  });
+  // $('#enter').hover(function(){
+  //   $('#enter').hide();
+  //   $('#enterpic').removeClass('hidden');
+  // });
 });
