@@ -56,16 +56,16 @@ $(document).ready(function(){
       console.log("Finish searching for", title);
       console.log("This is the response: ", response);
 
-      var keys = ['Title', 'Year', 'Rated', 'Released', 'Runtime', 'Genre', 'Director', 'Writer', 'Actors', 'Language', 'Country', 'Awards'];
+      // var keys = ['Title', 'Year', 'Rated', 'Released', 'Runtime', 'Genre', 'Director', 'Writer', 'Actors', 'Language', 'Country', 'Awards'];
+      var keys = Object.keys(response);
+      console.log(keys);
 
       var html = constructHtml(response, keys);
 
-      setTimeout(function(){
-        $('#poster').attr("src", response["Poster"]);
-        $('#details').html(html);
-        $('.info').show();
-        movieFinder.hideDot();
-      }, 2000);
+      $('#poster').attr("src", response["Poster"]);
+      $('#details').html(html);
+      $('.info').show();
+      movieFinder.hideDot();
     };
 
     $.ajax({
