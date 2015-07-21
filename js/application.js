@@ -1,15 +1,16 @@
 $(document).ready(function(){
-  var SearchEngine = function(){
+  var MovieFinder = function(){
     this.timer = null;
     this.hideDot();
+    this.searches = [];
   };
 
-  SearchEngine.prototype.hideDot = function(){
+  MovieFinder.prototype.hideDot = function(){
     clearInterval(this.timer);
     $('#loading').text('');
   };
 
-  SearchEngine.prototype.showDot = function(){
+  MovieFinder.prototype.showDot = function(){
     clearInterval(this.timer);
     var times = 0;
 
@@ -24,23 +25,18 @@ $(document).ready(function(){
     }, 300);
   };
 
-  SearchEngine.prototype.loadingScreen = function(){
+  MovieFinder.prototype.loadingScreen = function(){
     $('.info').hide();
     this.showDot();
   };
 
-  SearchEngine.prototype.search = function(title){
+  MovieFinder.prototype.search = function(title){
     this.loadingScreen();
+    this.searches.push(title);
 
-    var successFunction = function(response){
-      console.log("Finish searching for", title);
-      console.log("This is the response: ", response);
-
-      $('#poster').attr("src", response["Poster"]);
-
-      var keys = ['Title', 'Year', 'Rated', 'Released', 'Runtime', 'Genre', 'Director', 'Writer', 'Actors', 'Language', 'Country', 'Awards'];
+    var constructHtml = function(response, keys){
       var html = '';
-
+      
       keys.forEach(function(key){
         html += '<li>';
         html +=   '<div class="col-xs-3">';
@@ -52,10 +48,22 @@ $(document).ready(function(){
         html += '</li>';
       });
 
+      return html;
+    };
+
+    var successFunction = function(response){
+      console.log("Finish searching for", title);
+      console.log("This is the response: ", response);
+
+      var keys = ['Title', 'Year', 'Rated', 'Released', 'Runtime', 'Genre', 'Director', 'Writer', 'Actors', 'Language', 'Country', 'Awards'];
+
+      var html = constructHtml(response, keys);
+
       setTimeout(function(){
+        $('#poster').attr("src", response["Poster"]);
         $('#details').html(html);
         $('.info').show();
-        searchEngine.hideDot();
+        movieFinder.hideDot();
       }, 2000);
     };
 
@@ -67,7 +75,7 @@ $(document).ready(function(){
     });
   };
 
-  var searchEngine = new SearchEngine();
+  var movieFinder = new MovieFinder();
 
   $('#search-form').submit(function(){
     event.preventDefault();
@@ -76,11 +84,11 @@ $(document).ready(function(){
     $('.info').removeClass('hidden');
 
     var title = $('#title').val();
-    searchEngine.search(title);
+    movieFinder.search(title);
   })
 
-  // $('#enter').hover(function(){
-  //   $('#enter').hide();
-  //   $('#enterpic').removeClass('hidden');
-  // });
+  $('#enter').hover(function(){
+    $('#enter').hide();
+    $('#enterpic').removeClass('hidden');
+  });
 });
